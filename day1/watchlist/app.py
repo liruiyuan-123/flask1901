@@ -62,6 +62,7 @@ def index():
     movies = Movie.query.all()
     return render_template('index.html',movies=movies)
 
+# 更新
 @app.route('/movie/edit/<int:movie_id>',methods=['GET',"POST"])
 def edit(movie_id):
     movie = Movie.query.get_or_404(movie_id)
@@ -78,7 +79,14 @@ def edit(movie_id):
         return redirect(url_for('index'))
     return render_template('edit.html',movie=movie)
 
-
+# 删除
+@app.route('/movie/dele/<int:movie_id>',methods=['POST'])
+def dele(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+    db.session.delete(movie)
+    db.session.commit()
+    flash('删除完成')
+    return redirect(url_for('index'))
 
 # 自定义命令
 # 新建data.db的数据库初始化命令
