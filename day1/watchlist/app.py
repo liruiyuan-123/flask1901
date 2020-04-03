@@ -4,7 +4,7 @@ import sys
 
 # 第三方库
 import click
-from flask import Flask,render_template
+from flask import Flask,render_template,flash,redirect,request,url_for
 # 导入扩展类
 from flask_sqlalchemy import SQLAlchemy 
 
@@ -21,6 +21,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = prefix+os.path.join(app.root_path,'data.db')
 # 关闭了对模型修改的监控
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'watchlist_dev'
 # 初始化扩展，传入程序实例app
 db = SQLAlchemy(app)
 
@@ -42,24 +43,42 @@ def common_user():
     return dict(name=user)
 
 # views
-@app.route('/')
+@app.route('/',methods=['GET','POST'])
 def index():
-    # name = "Bruce"
-    # movies = [
-    #     {"title":"我是谁","year":"2016"},
-    #     {"title":"我是谁","year":"2016"},
-    #     {"title":"我是谁","year":"2016"},
-    #     {"title":"我的父亲母亲","year":"1995"},
-    #     {"title":"囧妈","year":"2020"},
-    #     {"title":"战狼","year":"2020"},
-    #     {"title":"心花路放","year":"2018"},
-    #     {"title":"囧妈","year":"2020"},
-    #     {"title":"战狼","year":"2020"},
-    # ]
-    # user = User.query.first()
+    if request.method == "POST":
+        # request在请求触发的时候才会包含数据
+        title = request.form.get('title')
+        year = request.form.get('year')
+        # 验证数据
+        if not title or not year or len(year)>4 or len(title)>60:
+            flash('不能为空或超过最大长度')
+            return redirect(url_for('index'))
+        # 保存表单数据
+        movie = Movie(title=title,year=year)
+        db.session.add(movie)
+        db.session.commit()
+        flash('创建成功')
+        return redirect(url_for('index'))
     movies = Movie.query.all()
     return render_template('index.html',movies=movies)
-    
+
+@app.route('/movie/edit/<int:movie_id>',methods=['GET',"POST"])
+def edit(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+    if request.method == "POST":
+        title = request.form['title']
+        year = request.form['year']
+        if not title or not year or len(year)>4 or len(title)>60:
+            flash('更改时不能为空或超过最大长度')
+            return redirect(url_for('index'))
+        movie.title = title
+        movie.year = year
+        db.session.commit()
+        flash('更新完成')
+        return redirect(url_for('index'))
+    return render_template('edit.html',movie=movie)
+
+
 
 # 自定义命令
 # 新建data.db的数据库初始化命令

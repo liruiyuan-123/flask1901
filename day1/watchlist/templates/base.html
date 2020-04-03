@@ -10,9 +10,15 @@
 </head>
 <body>
     <h2>
-        <img class="avatar" src="{{ url_for('static',filename='images/avatar.jpg') }}" alt="头像">
+        <img class="avatar" src="{{ url_for('static',filename='images/1.jpg') }}" alt="头像">
         {{ name.name }}'s WatchList
     </h2>
+    <!-- 前端提示 -->
+    {% for message in get_flashed_messages() %}
+        <div class='alert'>{{ message }}</div>
+    {% endfor %}
+
+
     <nav>
         <ul>
             <li>
