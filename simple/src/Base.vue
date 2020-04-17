@@ -5,7 +5,7 @@
         <img src="./assets/logo.png" alt=""> <span class="app-title">海马生鲜商城</span>
         <div class="head-nav">
           <ul>
-            <li>登录</li>
+            <li v-on:click="ShowLoginView">登录</li>
             <li class="nav-pile">|</li>
             <li>注册</li>
             <li class="nav-pile">|</li>
@@ -17,18 +17,32 @@
     <div class="app-content">
       <!-- 从路由引入 -->
       <keep-alive>
-        <router-view></router-view>
+        <router-view ></router-view>
       </keep-alive>
     </div>
     <div class="app-footer">
       <p>&copy;1901c - 2020</p>
     </div>
+    <MyLogin v-show="isShowLoginView"></MyLogin>
   </div>
 </template>
 
 <script>
+import MyLogin from './commponents/myLogin'
 export default{
-  
+  components:{
+    MyLogin
+  },
+  data() {
+    return {
+      isShowLoginView:false
+    }
+  },
+  methods: {
+    ShowLoginView(){
+      this.isShowLoginView = true
+    }
+  },
 }
 </script>
 
